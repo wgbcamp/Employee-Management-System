@@ -35,21 +35,18 @@ function mainPrompt(){
         switch (answer) {
             case "View All Employees":
                 ViewAllEmployees();
-                setTimeout(mainPrompt, 100);
             break;
             case "View All Employees By Department":
                 DepartmentPrompt();
             break;
             case "View All Employees By Manager":
+                ManagerPrompt();
             break;
             case "Add Employee":
             break;
-            case "Remove Employee":
-            break;
             case "Update Employee Role":
             break;
-            case "Update Employee Manager":
-            break;
+
         }
     })
 }
@@ -63,7 +60,29 @@ function DepartmentPrompt(){
         }
     ]).then(function(data){
         var holdinput = data.department_search;
+
+            if(!holdinput.match(/^([0-9]|[a-z])+([0-9a-z]+)$/i)){
+                holdinput = '';   
+        }
         ViewEmployeesByDepartment(holdinput);
+
+    })
+}
+
+function ManagerPrompt(){
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "manager_search",
+            message: "Enter the name of the manager you want to filter by"
+        }
+    ]).then(function(data){
+        var holdinput = data.manager_search;
+
+        if(!holdinput.match(/^([0-9]|[a-z])+([0-9a-z]+)$/i)){
+            holdinput = '';   
+    }
+        ViewEmployeesByManager(holdinput);
 
     })
 }
@@ -93,15 +112,26 @@ function ViewEmployeesByDepartment(holdinput){
         if(parsed = ''){
             console.log("There is no employee working within this department.")         
     }
-    setTimeout(mainPrompt, 100);
 }
 
-//query database
+function ViewEmployeesByManager(holdinput){
+
+    
+    var sql = "SELECT department.id, DeptName, title, salary, first_name, last_name, manager FROM department LEFT JOIN role ON department.id = role.department_id LEFT JOIN employee ON role.department_id = role_id WHERE Manager IN ('" + holdinput + "');";
+
+    queryDatabase(sql);
+
+        if(parsed = ''){
+            console.log("There is no employee working under this manager.")         
+    }
+}
+
+
+//query database and return to main prompt
 function queryDatabase(sql){
 
 
     connection.query(sql, function(err, data) {
-        if (err) throw err;
         var parsed = JSON.parse(JSON.stringify(data));
         var objects = [];
 
@@ -110,8 +140,12 @@ function queryDatabase(sql){
         }
             console.table(['id', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager'], objects);
     });
+
+    setTimeout(mainPrompt, 100);
+
     
 }
+
 
 //function invocations
 startDatabase();

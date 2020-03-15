@@ -38,7 +38,7 @@ SELECT department.id, first_name, last_name, title, DeptName, salary, manager
 FROM department
 LEFT JOIN role ON department.id = role.department_id
 LEFT JOIN employee ON role.department_id = role_id
--- WHERE DeptName IN ("Audio");
+WHERE Manager IN ("Martin");
 
 
 
