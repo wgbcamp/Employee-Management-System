@@ -30,15 +30,14 @@ CREATE TABLE employee (
     FOREIGN KEY (role_id) REFERENCES role(id),
     FOREIGN KEY (manager_id) REFERENCES role(id)
 );
-INSERT INTO department (DeptName) VALUES ("Engineering"), ("Audio"), ("Make-up"), ("Cleaning");
-INSERT INTO role (title, salary, department_id) VALUES ("Deputy", 50000, (SELECT id FROM department WHERE id = 1)), ("Supervisor", 60000, 2), ("Secretary", 45000, 3), ("Intern", 30000, 4);
-INSERT INTO employee (first_name, last_name, manager, role_id, manager_id) VALUES ("Jeff", "Williams", "Martin", 1, 1), ("Benjamin", "Rojas", "Martin", 2, 2), ("Sarah", "Connors", "Martin", 3, 3), ("Enrique", "Martinez", "Martin", 4, 4);
+INSERT INTO department (DeptName) VALUES ("Engineering"), ("Audio"), ("Accounting"), ("Sanitation");
+INSERT INTO role (title, salary, department_id) VALUES ('Deputy', 50000, (SELECT id FROM department WHERE id = 1)), ("Supervisor", 60000, 2), ("Secretary", 45000, 3), ("Intern", 30000, 4);
+INSERT INTO employee (first_name, last_name, manager, role_id) VALUES ("Jeff", "Williams", "Martin", 1), ("Benjamin", "Rojas", "Martin", 2), ("Sarah", "Connors", "Martin", 3), ("Jennifer", "Pelosi", "Martin", 4);
 
 SELECT department.id, first_name, last_name, title, DeptName, salary, manager
 FROM department
 LEFT JOIN role ON department.id = role.department_id
 LEFT JOIN employee ON role.department_id = role_id
--- WHERE Manager IN ("Martn");
 
 
 

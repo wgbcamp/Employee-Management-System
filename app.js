@@ -33,9 +33,8 @@ function mainPrompt(){
                 "View All Employees By Department",
                 "View All Employees By Manager",
                 "Add Employee",
-                "Remove Employee",
-                "Update Employee Role",
-                "Update Employee Manager"
+                "Update Employee Role"
+     
             ]
         }
     ]).then(function(data){
@@ -56,6 +55,7 @@ function mainPrompt(){
                 NewEmployeePrompt();
             break;
             case "Update Employee Role":
+                GetEmployeeId();
             break;
 
         }
@@ -228,6 +228,36 @@ function NewEmployeePrompt(){
         })
     }
 
+
+    function GetEmployeeId(){
+
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "get_employeeId",
+                message: "Enter the ID of the employee whose role you would like to update."
+            }
+        ]).then(function(data){
+            var holdinput = data.get_employeeId;
+            UpdateEmployeeRole(holdinput)
+        })
+    }
+
+    function UpdateEmployeeRole(holdinput){
+
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "get_newrole",
+                message: "Enter the new role for this employee."
+            }
+        ]).then(function(data){
+            var newrole = data.get_newrole;
+            UpdateEmployeeRoleDB(holdinput, newrole);
+        })
+
+    }
+
 //database functions
 
 function startDatabase(){
@@ -269,7 +299,7 @@ function ViewEmployeesByManager(holdinput){
     setTimeout(mainPrompt, 100); 
 }
 
-//ADDS BULK DATA TO DATABASE
+//ADDS NEW EMPLOYEE DATA TO DATABASE
 function addBulkToDatabase(){
 
     var sql = "INSERT INTO department (DeptName) VALUES ('" + holdDept + "');"; 
@@ -278,13 +308,22 @@ function addBulkToDatabase(){
 
     var sql3 = "INSERT INTO employee (first_name, last_name, manager, role_id) VALUES ('" + holdFirstName + "', '" + holdLastName + "', '" + holdManager + "', (SELECT id FROM role WHERE id = " + holdIdLength + "));";
 
-    console.log("var sql= " + sql);
-    console.log("var sql2= " + sql2);
-    console.log("var sql3= " + sql3);
     addToDatabase(sql, sql2, sql3);
 
 }
 
+//Updates employee role
+function UpdateEmployeeRoleDB(holdinput, newrole){
+
+    var sql = "UPDATE role SET title = '" + newrole + "' WHERE id = " + holdinput + "";
+    connection.query(sql, function(err, data){
+        if(err) throw (err);
+
+    })
+
+    ViewAllEmployees();
+    setTimeout(mainPrompt, 100);
+}
 
 function GetIdLength(){
     var sql = "SELECT department.id, DeptName, title, salary, first_name, last_name, manager FROM department LEFT JOIN role ON department.id = role.department_id LEFT JOIN employee ON role.department_id = role_id;";
@@ -312,6 +351,7 @@ function queryDatabase(sql){
     
 }
 
+//function is called for receiving data then adding to database
 function addToDatabase(sql,sql2, sql3){
     connection.query(sql, function(err, data){
         if(err) throw (err);
@@ -329,7 +369,15 @@ function addToDatabase(sql,sql2, sql3){
     setTimeout(mainPrompt, 100);
 }
 
-
+//introduction
+function introText(){
+    console.log(`  
+    _                                                                           __                     
+    |_ ._ _  ._  |  _      _   _    |\/|  _. ._   _.  _   _  ._ _   _  ._ _|_   (_      _ _|_  _  ._ _  
+    |_ | | | |_) | (_) \/ (/_ (/_   |  | (_| | | (_| (_| (/_ | | | (/_ | | |_   __) \/ _>  |_ (/_ | | | 
+             |         /                              _|                            /                   `)
+}
 //function invocations
 startDatabase();
+introText();
 mainPrompt();
